@@ -15,26 +15,18 @@ from sklearn.metrics.pairwise import cosine_similarity
 # ---------------------------
 
 def fetch_poster(movie_id):
-    session = requests.Session()
-    retries = Retry(total=3, backoff_factor=0.3, status_forcelist=[500, 502, 503, 504])
-    session.mount("https://", HTTPAdapter(max_retries=retries))
-
     try:
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=2560e91e5a3a55a1fe723caf35df2542&language=en-US"
-        response = session.get(url, timeout=10)
-        response.raise_for_status()
-
+        api_key = st.secrets["TMDB_API_KEY"]
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US"
+        response = requests.get(url)
         data = response.json()
-        poster_path = data.get("poster_path")
 
-        if poster_path:
-            return f"https://image.tmdb.org/t/p/w500{poster_path}"
+        if "poster_path" in data and data["poster_path"]:
+            return f"https://image.tmdb.org/t/p/w500{data['poster_path']}"
         else:
             return "https://via.placeholder.com/500x750.png?text=No+Image"
-
-    except Exception as e:
-        print(f"Error fetching poster for movie ID {movie_id}: {e}")
-        return "https://via.placeholder.com/500x750.png?text=No+Image"
+    except:
+        return "https://via.placeholder.com/500x750.png?text=Error"
 
 
 # ---------------------------
