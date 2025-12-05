@@ -15,18 +15,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 # ---------------------------
 
 def fetch_poster(movie_id):
-    try:
-        api_key = st.secrets["TMDB_API_KEY"]
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US"
-        response = requests.get(url)
-        data = response.json()
+    movie_row = movies[movies["movie_id"] == movie_id].iloc[0]
 
-        if "poster_path" in data and data["poster_path"]:
-            return f"https://image.tmdb.org/t/p/w500{data['poster_path']}"
-        else:
-            return "https://via.placeholder.com/500x750.png?text=No+Image"
-    except:
-        return "https://via.placeholder.com/500x750.png?text=Error"
+    poster_path = movie_row["poster_path"]
+
+    if pd.notna(poster_path):
+        return f"https://image.tmdb.org/t/p/w500{poster_path}"
+    else:
+        return "https://via.placeholder.com/500x750.png?text=No+Image"
 
 
 # ---------------------------
