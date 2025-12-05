@@ -2,6 +2,7 @@ import streamlit as st
 import pickle
 import pandas as pd
 import os
+import requests
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -10,13 +11,20 @@ from sklearn.metrics.pairwise import cosine_similarity
 # ---------------------------
 
 def fetch_poster(movie_id):
-    movie_row = movies[movies["movie_id"] == movie_id].iloc[0]
-    poster_path = movie_row["poster_path"]
+    try:
+        api_key = st.secrets["TMDB_API_KEY"]
+        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={api_key}&language=en-US"
+        data = requests.get(url).json()
 
-    if pd.notna(poster_path):
-        return f"https://image.tmdb.org/t/p/w500{poster_path}"
-    else:
-        return "https://via.placeholder.com/500x750.png?text=No+Image"
+        poster_path = data.get("poster_path")
+
+        if poster_path:
+            return f"https://image.tmdb.org/t/p/w500{poster_path}"
+        else:
+            return "https://via.placeholder.com/500x750.png?text=No+Image"
+
+    except Exception as e:
+        return "https://via.placeholder.com/500x750.png?text=Error"
 
 
 # ---------------------------
